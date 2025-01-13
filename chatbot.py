@@ -4,6 +4,25 @@
 import streamlit as st
 import cohere
 import fitz # An alias for the PyMuPDF library.
+from streamlit.components.v1 import html
+
+# Add this JavaScript code near the top of the file, after the imports
+js_code = """
+<script>
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        const textArea = document.querySelector('textarea');
+        if (textArea) {
+            const submitButton = textArea.closest('form').querySelector('button[type="submit"]');
+            if (submitButton) {
+                submitButton.click();
+            }
+        }
+    }
+});
+</script>
+"""
 
 def pdf_to_documents(pdf_path):
     """
@@ -20,9 +39,9 @@ def pdf_to_documents(pdf_path):
 
     doc = fitz.open(pdf_path)
     documents = []
-    text = ""
     chunk_size = 1000
     for page_num in range(len(doc)):
+        # Splits PDF into manageable chunks for the LLM
         page = doc.load_page(page_num)
         text = page.get_text()
         part_num = 1
@@ -64,14 +83,17 @@ st.title("💬 HKIS Bus Helper")
 
 # Initialize the chat history with a greeting message
 if "messages" not in st.session_state:
-    st.session_state["messages"] = [{"role": "Chatbot", "text": "Hi! I'm the HKIS Bus Helper. Select your location from the dropdown then ask me where you'd like to go and I'll do my best to find a school bus that will get you there."}]
+    st.session_state["messages"] = [{"role": "Chatbot", "text": "Hi! I'm the HKIS Bus Helper..."}]
 
 # Display the chat messages
 for msg in st.session_state.messages:
     st.chat_message(msg["role"]).write(msg["text"])
 
-# Get user input
-if prompt := st.chat_input():
+# Replace the chat input line:
+# if prompt := st.chat_input():
+# with this new code:
+st.markdown(js_code, unsafe_allow_html=True)
+if prompt := st.chat_input("Message the HKIS Bus Helper...", key="chat_input"):
     # Stop responding if the user has not added the Cohere API key
     if not cohere_api_key:
         st.info("Please add your Cohere API key to continue.")
