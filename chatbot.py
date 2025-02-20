@@ -5,6 +5,7 @@ import streamlit as st
 import cohere
 import fitz # An alias for the PyMuPDF library.
 from streamlit.components.v1 import html
+import time  # Add this to the imports at the top
 
 # Add this JavaScript code near the top of the file, after the imports
 js_code = """
@@ -67,23 +68,54 @@ with st.sidebar:
         cohere_api_key = st.text_input("Cohere API Key", key="chatbot_api_key", type="password")
         st.markdown("[Get a Cohere API Key](https://dashboard.cohere.ai/api-keys)")
     
+    # Add clear chat button
+    if st.button("Clear Chat"):
+        st.session_state.messages = [{"role": "Chatbot", "text": "Clarence Thomas is my name. SCOTUS cases are my game."}]
+        st.rerun()
+    
     my_documents = []
-    selected_doc = st.selectbox("Select your departure location", ["Tai Tam Middle School", "Repulse Bay"])
-    if selected_doc == "Tai Tam Bus Schedule":
-        my_documents = pdf_to_documents('docs/HKISTaiTamBusSchedule.pdf')
-    elif selected_doc == "Repulse Bay Bus Schedule":    
-        my_documents = pdf_to_documents('docs/HKISRepulseBayBusSchedule.pdf')
+    selected_doc = st.selectbox("Select your Supreme Court case", ["Marbury V. Madison", "McCulloch V. Maryland", "Schenck V. United States", "Brown V. Board"
+    , "Engel V. Vitale", "Baker V. Carr", "Gideon V. Wainwright", "Tinker V. Des Moines", "New York Times V. United States", "Wisconsin V. Yoder", "Shaw V. Reno"
+    , "United States V. Lopez", "McDonald V. Chicago", "Citizens United V. FEC"])
+    if selected_doc == "Marbury V. Madison":
+        my_documents = pdf_to_documents('docs/Marbury_V_Madison.pdf')
+    elif selected_doc == "McCulloch_V_Maryland":    
+        my_documents = pdf_to_documents('docs/McCulloch_V_Maryland.pdf')
+    elif selected_doc == "Schenck V. United States":
+        my_documents = pdf_to_documents('docs/Schenck_V_United_States.pdf')
+    elif selected_doc == "Brown V. Board":
+        my_documents = pdf_to_documents('docs/Brown_V_Board.pdf')
+    elif selected_doc == "Engel V. Vitale":
+        my_documents = pdf_to_documents('docs/Engel_V_Vitale.pdf')
+    elif selected_doc == "Baker V. Carr":
+        my_documents = pdf_to_documents('docs/Baker_V_Carr.pdf')
+    elif selected_doc == "Gideon V. Wainwright":
+        my_documents = pdf_to_documents('docs/Gideon_V_Wainwright.pdf')
+    elif selected_doc == "Tinker V. Des Moines":
+        my_documents = pdf_to_documents('docs/Tinker_V_Des_Moines.pdf')
+    elif selected_doc == "New York Times V. United States":
+        my_documents = pdf_to_documents('docs/New_York_Times_V_United_States.pdf')
+    elif selected_doc == "Wisconsin V. Yoder":
+        my_documents = pdf_to_documents('docs/Wisconsin_V_Yoder.pdf')
+    elif selected_doc == "Shaw V. Reno":
+        my_documents = pdf_to_documents('docs/Shaw_V_Reno.pdf')
+    elif selected_doc == "":
+        my_documents = pdf_to_documents('docs/United_States_V_Lopez.pdf')
+    elif selected_doc == "McDonald V. Chicago":
+        my_documents = pdf_to_documents('docs/McDonald_V_Chicago.pdf')
+    elif selected_doc == "Citizens United V. FEC":
+        my_documents = pdf_to_documents('docs/Citizens_United_V_FEC.pdf')
     else:
-        my_documents = pdf_to_documents('docs/HKISTaiTamBusSchedule.pdf')
+        my_documents = pdf_to_documents('docs/Marbury_V_Madison.pdf')
 
-    # st.write(f"Selected document: {selected_doc}")
+    st.write(f"Selected document: {selected_doc}")
 
 # Set the title of the Streamlit app
-st.title("💬 HKIS Bus Helper")
+st.title("💬 Clarence_Thomas.ai")
 
 # Initialize the chat history with a greeting message
 if "messages" not in st.session_state:
-    st.session_state["messages"] = [{"role": "Chatbot", "text": "Hi! I'm the HKIS Bus Helper..."}]
+    st.session_state["messages"] = [{"role": "Chatbot", "text": "Clarence Thomas is my name. SCOTUS cases are my game."}]
 
 # Display the chat messages
 for msg in st.session_state.messages:
@@ -93,7 +125,7 @@ for msg in st.session_state.messages:
 # if prompt := st.chat_input():
 # with this new code:
 st.markdown(js_code, unsafe_allow_html=True)
-if prompt := st.chat_input("Message the HKIS Bus Helper...", key="chat_input"):
+if prompt := st.chat_input("Message Clarence_Thomas...", key="chat_input"):
     # Stop responding if the user has not added the Cohere API key
     if not cohere_api_key:
         st.info("Please add your Cohere API key to continue.")
@@ -105,17 +137,17 @@ if prompt := st.chat_input("Message the HKIS Bus Helper...", key="chat_input"):
     # Display the user message in the chat window
     st.chat_message("User").write(prompt)
 
-    preamble = """You are the Hong Kong International School Bus Helper bot. You help people understand the bus schedule.
-    When someone mentions a location you should refer to the document to see if there are buses that stop nearby.
-    Respond with advice about which buses will stop the closest to their destination, the name of the stop they 
-    should get off at and the name of the suburb that the stop is located in. 
-    Finish with brief instructions for how they can get from the stop to their destination.
-    Group the buses you recommend by the time they depart. If the document is about Tai Tam then group your recommendations by the following departure times: 3:15, 4:20 and 5pm. 
-    If the document is about repulse bay then state the departure time is 4pm.
+    preamble = """You are U.S. Supreme Court Justice Clarence Thomas. You are a conservative judge who is known for being a staunch supporter of the Second Amendment.
+    Your duty is to answer questions about the Supreme Court case you are referencing, and help the user understand the case. Your responses should reference the case
+    document thoroughly, accurately, and precisely, and present the information in a way that is easy to understand. The cases are at times difficult to understand, so you
+    must help the user understand the case and answer any questions they may have to the best of your ability. At the same time, your responses should be multiple paragraphs long,
+    and you should be able to reference the case document to provide the user with the information they need. This may come in the form of a quote from the case document, or a summary of the case.
+    You should also be able to identify the relevant parts of the U.S. Constitution pertaining to the case. Above all, you must never repeat yourself.
     """
-
-    # Send the user message and pdf text to the model and capture the response
-    response = client.chat(chat_history=st.session_state.messages,
+    start_time = time.time()
+    # Generate the full response first
+    response = client.chat_stream(
+                           chat_history=st.session_state.messages,
                            message=prompt,
                            documents=my_documents,
                            prompt_truncation='AUTO',
@@ -124,9 +156,27 @@ if prompt := st.chat_input("Message the HKIS Bus Helper...", key="chat_input"):
     # Add the user prompt to the chat history
     st.session_state.messages.append({"role": "User", "text": prompt})
     
-    # Add the response to the chat history
-    msg = response.text
-    st.session_state.messages.append({"role": "Chatbot", "text": msg})
+    # Create a placeholder for the streaming response
+    chat_box = st.chat_message("Chatbot")
+    message_placeholder = chat_box.empty()
+    full_response = ""
 
-    # Write the response to the chat window
-    st.chat_message("Chatbot").write(msg)
+    # Stream the response
+    for chunk in response:
+        if hasattr(chunk, 'text'):  # For regular text chunks
+            full_response += chunk.text
+        elif hasattr(chunk, 'event_type'):  # For stream start/end events
+            continue
+        # Add a blinking cursor to simulate typing
+        message_placeholder.markdown(full_response + "▌")
+    
+    # Calculate time after response is complete
+    end_time = time.time()
+    processing_time = round(end_time - start_time, 2)
+    
+    # Format final response with timer
+    final_response = f"{full_response}\n\n*Thought for {processing_time} seconds*"
+    
+    # Update display and chat history
+    message_placeholder.markdown(final_response)
+    st.session_state.messages.append({"role": "Chatbot", "text": final_response})
